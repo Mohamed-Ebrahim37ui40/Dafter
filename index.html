@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دفتر يومياتي</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#c2410c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="يومياتي">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--bg:#f4f1ec;--panel:#fff;--ink:#23201c;--mute:#7a736a;--line:#e4ded5;--acc:#c2410c;--accs:#fdeee4;--sh:0 2px 12px rgba(0,0,0,.06)}
+:root[data-t=dark]{--bg:#17150f;--panel:#201d16;--ink:#ece6da;--mute:#9a9183;--line:#38332a;--acc:#fb923c;--accs:#3a2a1c;--sh:0 2px 12px rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:'Segoe UI',Tahoma,'Noto Naskh Arabic',Arial,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
+button,select,input{font:inherit;color:inherit}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{font-size:19px;margin:0;flex:1}
+header h1 span{color:var(--acc)}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:6px 11px;cursor:pointer;transition:.15s}
+.btn:hover{background:var(--accs);border-color:var(--acc)}
+.btn.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+.btn.pri:hover{opacity:.9;background:var(--acc)}
+#menu{display:none}
+main{flex:1;display:flex;min-height:0}
+aside{width:310px;background:var(--panel);border-inline-end:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.sh{padding:12px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+#q{width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:var(--bg)}
+#q:focus,#title:focus{outline:2px solid var(--acc);outline-offset:-1px}
+#cnt{font-size:12px;color:var(--mute)}
+#list{overflow:auto;flex:1;padding:8px}
+.it{padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent;margin-bottom:4px}
+.it:hover{background:var(--bg)}
+.it.on{background:var(--accs);border-color:var(--acc)}
+.it b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it small{display:block;color:var(--mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.it i{font-style:normal;font-size:11px;color:var(--acc)}
+.empty{text-align:center;color:var(--mute);padding:30px 10px;font-size:14px}
+section{flex:1;display:flex;flex-direction:column;min-width:0;padding:14px;gap:10px}
+.tb{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;box-shadow:var(--sh)}
+.tb .g{display:flex;gap:3px;align-items:center;padding-inline-end:7px;border-inline-end:1px solid var(--line)}
+.tb .g:last-child{border:0}
+.tb button{width:32px;height:32px;border:1px solid transparent;background:none;border-radius:8px;cursor:pointer;font-size:15px}
+.tb button:hover{background:var(--accs);border-color:var(--acc)}
+.tb select{height:32px;border-radius:8px;border:1px solid var(--line);background:var(--bg);padding:0 6px;max-width:130px}
+.tb label{position:relative;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;border-radius:8px;font-size:15px}
+.tb label:hover{background:var(--accs)}
+.tb label input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.tb label u{position:absolute;bottom:3px;inset-inline:8px;height:3px;border-radius:2px}
+.icons{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 8px;display:flex;gap:2px;overflow-x:auto;align-items:center}
+.icons span{font-size:12px;color:var(--mute);padding-inline:6px;white-space:nowrap}
+.icons button{flex:none;border:0;background:none;font-size:21px;cursor:pointer;border-radius:8px;padding:3px 6px;transition:.12s}
+.icons button:hover{background:var(--accs);transform:scale(1.2)}
+.paper{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.meta{display:flex;justify-content:space-between;align-items:center;padding:8px 18px;color:var(--mute);font-size:12px;border-bottom:1px dashed var(--line);gap:8px;flex-wrap:wrap}
+#st.ok{color:#16a34a}
+#title{border:0;background:none;font-size:25px;font-weight:700;padding:12px 18px 4px;width:100%}
+#ed{flex:1;overflow:auto;padding:10px 18px 30px;outline:none;line-height:1.9;font-size:17px;min-height:120px}
+#ed:empty:before{content:attr(data-p);color:var(--mute)}
+#ed img{max-width:100%;border-radius:10px;margin:8px 0;display:block}
+#ed .c{display:flex;gap:8px;align-items:flex-start}
+#ed .c input{margin-top:9px;width:17px;height:17px;accent-color:var(--acc);flex:none}
+#ed .c.d span{text-decoration:line-through;color:var(--mute)}
+#ed .c span{flex:1;outline:none}
+.none{flex:1;display:grid;place-items:center;color:var(--mute);text-align:center}
+.none div{font-size:60px}
+@media(max-width:800px){
+#menu{display:block}
+aside{position:fixed;inset:0 0 0 auto;z-index:20;width:85%;max-width:340px;transform:translateX(105%);transition:.25s;box-shadow:-4px 0 20px rgba(0,0,0,.25)}
+aside.open{transform:none}
+section{padding:8px}
+.hide-m{display:none}
+}
+@media print{header,aside,.tb,.icons{display:none}}
+</style>
+</head>
+<body>
+<header>
+ <button class="btn" id="menu" title="القائمة">☰</button>
+ <h1>📒 دفتر <span>يومياتي</span></h1>
+ <button class="btn hide-m" id="exp" title="نسخة احتياطية">⬇ نسخ احتياطي</button>
+ <button class="btn hide-m" id="imp" title="استعادة">⬆ استعادة</button>
+ <input type="file" id="impf" accept=".json" hidden>
+ <button class="btn pri" id="inst" hidden>⬇ تثبيت التطبيق</button>
+ <button class="btn" id="theme" title="الوضع الليلي">🌙</button>
+ <button class="btn pri" id="new">＋ ملاحظة جديدة</button>
+</header>
+<main>
+ <aside id="side">
+  <div class="sh">
+   <input id="q" type="search" placeholder="🔍 ابحث في الملاحظات...">
+   <span id="cnt"></span>
+  </div>
+  <div id="list"></div>
+ </aside>
+ <section id="sec">
+  <div class="tb" id="tb">
+   <div class="g">
+    <button data-c="undo" title="تراجع">↶</button><button data-c="redo" title="إعادة">↷</button>
+   </div>
+   <div class="g">
+    <select id="ff" title="نوع الخط">
+     <option value="">نوع الخط</option>
+     <option>Segoe UI</option><option>Tahoma</option><option>Arial</option><option>Verdana</option>
+     <option>Georgia</option><option>Times New Roman</option><option>Courier New</option>
+     <option>Trebuchet MS</option><option>Comic Sans MS</option><option>Impact</option>
+    </select>
+    <select id="fs" title="حجم الخط">
+     <option value="">الحجم</option>
+     <option>12</option><option>14</option><option>16</option><option>18</option><option>20</option>
+     <option>24</option><option>28</option><option>32</option><option>40</option><option>48</option>
+    </select>
+   </div>
+   <div class="g">
+    <button data-c="bold" title="عريض"><b>B</b></button>
+    <button data-c="italic" title="مائل"><i>I</i></button>
+    <button data-c="underline" title="تسطير"><u>U</u></button>
+    <button data-c="strikeThrough" title="يتوسطه خط"><s>S</s></button>
+    <label title="لون الخط">A<u id="u1" style="background:#c2410c"></u><input type="color" id="fc" value="#c2410c"></label>
+    <label title="لون التمييز">🖍<u id="u2" style="background:#facc15"></u><input type="color" id="bc" value="#facc15"></label>
+   </div>
+   <div class="g">
+    <button data-c="justifyRight" title="يمين">⇥</button>
+    <button data-c="justifyCenter" title="وسط">↔</button>
+    <button data-c="justifyLeft" title="يسار">⇤</button>
+   </div>
+   <div class="g">
+    <button data-c="insertUnorderedList" title="قائمة نقطية">•≡</button>
+    <button data-c="insertOrderedList" title="قائمة رقمية">1≡</button>
+    <button id="chk" title="مهمة (مربع اختيار)">☑</button>
+    <button data-c="formatBlock" data-v="h2" title="عنوان"><b>H</b></button>
+    <button data-c="insertHorizontalRule" title="فاصل">―</button>
+   </div>
+   <div class="g">
+    <button id="img" title="إضافة صورة">🖼</button>
+    <button id="dt" title="إدراج التاريخ والوقت">🕒</button>
+    <button data-c="removeFormat" title="مسح التنسيق">🧹</button>
+    <button onclick="window.print()" title="طباعة">🖨</button>
+    <button id="del" title="حذف الملاحظة">🗑</button>
+   </div>
+   <input type="file" id="imgf" accept="image/*" multiple hidden>
+  </div>
+  <div class="icons" id="ic"><span>أيقونات سريعة:</span></div>
+  <div class="paper" id="paper">
+   <div class="meta"><span id="dm"></span><span id="st"></span></div>
+   <input id="title" placeholder="عنوان الملاحظة...">
+   <div id="ed" contenteditable="true" data-p="اكتب ملاحظاتك هنا..."></div>
+  </div>
+  <div class="none" id="none" style="display:none"><p><div>📝</div>اختر ملاحظة من القائمة أو أنشئ ملاحظة جديدة</p></div>
+ </section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const ed=$('#ed'),ti=$('#title'),list=$('#list');
+let notes=[],cur=null,saveT,range=null;
+/* ---------- التخزين المحلي (IndexedDB) ---------- */
+const db=new Promise((res,rej)=>{const r=indexedDB.open('daftar-yawmiyat',1);r.onupgradeneeded=()=>r.result.createObjectStore('n',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const tx=async(m,f)=>{const d=await db;return new Promise((res,rej)=>{const t=d.transaction('n',m);const q=f(t.objectStore('n'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})};
+const pref=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
+/* ---------- أدوات ---------- */
+const fmt=t=>new Date(t).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'});
+const plain=h=>{const d=document.createElement('div');d.innerHTML=h;return d.textContent.replace(/\s+/g,' ').trim()};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ---------- القائمة الجانبية + البحث ---------- */
+function render(){
+ const q=$('#q').value.trim().toLowerCase();
+ const r=notes.filter(n=>!q||(n.title+' '+n.text).toLowerCase().includes(q)).sort((a,b)=>b.updated-a.updated);
+ $('#cnt').textContent=q?`النتائج: ${r.length} من ${notes.length}`:`عدد الملاحظات المحفوظة: ${notes.length}`;
+ list.innerHTML=r.length?r.map(n=>`<div class="it ${cur&&cur.id===n.id?'on':''}" data-id="${n.id}"><b>${esc(n.title||'بدون عنوان')}</b><small>${esc(n.text.slice(0,70)||'ملاحظة فارغة')}</small><i>${fmt(n.updated)}${n.html.includes('<img')?' · 🖼':''}</i></div>`).join(''):`<div class="empty">${q?'لا توجد نتائج مطابقة 🔎':'لا توجد ملاحظات بعد'}</div>`;
+}
+list.onclick=e=>{const it=e.target.closest('.it');if(it){open(it.dataset.id);$('#side').classList.remove('open')}};
+$('#q').oninput=render;
+/* ---------- فتح / حفظ ---------- */
+function show(on){$('#paper').style.display=$('#tb').style.display=$('#ic').style.display=on?'':'none';$('#none').style.display=on?'none':'grid'}
+function open(id){
+ cur=notes.find(n=>n.id==id);if(!cur){show(false);return}
+ show(true);ti.value=cur.title;ed.innerHTML=cur.html;$('#dm').textContent='أُنشئت: '+fmt(cur.created);$('#st').textContent='';render();
+}
+function save(now){
+ if(!cur)return;
+ clearTimeout(saveT);$('#st').className='';$('#st').textContent='جارٍ الحفظ...';
+ const go=async()=>{
+  cur.title=ti.value;cur.html=ed.innerHTML;cur.text=plain(cur.html);cur.updated=Date.now();
+  try{await tx('readwrite',s=>s.put(cur));$('#st').className='ok';$('#st').textContent='✓ تم الحفظ على جهازك'}catch(e){$('#st').textContent='⚠ تعذر الحفظ'}
+  render();
+ };
+ now?go():saveT=setTimeout(go,500);
+}
+ed.oninput=ti.oninput=()=>save();
+async function create(){
+ const n={id:Date.now(),title:'',html:'',text:'',created:Date.now(),updated:Date.now()};
+ notes.push(n);await tx('readwrite',s=>s.put(n));open(n.id);ti.focus();
+}
+$('#new').onclick=create;
+$('#del').onclick=async()=>{
+ if(!cur||!confirm('هل تريد حذف هذه الملاحظة نهائيًا؟'))return;
+ await tx('readwrite',s=>s.delete(cur.id));notes=notes.filter(n=>n!==cur);cur=null;
+ notes.length?open(notes.sort((a,b)=>b.updated-a.updated)[0].id):(show(false),render());
+};
+/* ---------- التنسيق ---------- */
+document.addEventListener('selectionchange',()=>{const s=getSelection();if(s.rangeCount&&ed.contains(s.anchorNode))range=s.getRangeAt(0).cloneRange()});
+function restore(){ed.focus();if(range){const s=getSelection();s.removeAllRanges();s.addRange(range)}}
+function cmd(c,v){restore();document.execCommand('styleWithCSS',false,true);document.execCommand(c,false,v||null);save()}
+$('#tb').addEventListener('mousedown',e=>{if(!e.target.closest('select,label'))e.preventDefault()});
+$('#tb').addEventListener('click',e=>{const b=e.target.closest('button[data-c]');if(b)cmd(b.dataset.c,b.dataset.v)});
+$('#ff').onchange=e=>{if(e.target.value)cmd('fontName',e.target.value);e.target.value=''};
+$('#fs').onchange=e=>{
+ const px=e.target.value;e.target.value='';if(!px)return;
+ restore();document.execCommand('styleWithCSS',false,false);document.execCommand('fontSize',false,7);
+ ed.querySelectorAll('font[size="7"]').forEach(f=>{const s=document.createElement('span');s.style.fontSize=px+'px';s.innerHTML=f.innerHTML;f.replaceWith(s)});save();
+};
+$('#fc').oninput=e=>{$('#u1').style.background=e.target.value;cmd('foreColor',e.target.value)};
+$('#bc').oninput=e=>{$('#u2').style.background=e.target.value;cmd('hiliteColor',e.target.value)};
+$('#dt').onclick=()=>ins(fmt(Date.now())+' ');
+function ins(t){restore();document.execCommand('insertText',false,t);save()}
+$('#chk').onclick=()=>{restore();document.execCommand('insertHTML',false,'<div class="c"><input type="checkbox"><span>&nbsp;</span></div><br>');save()};
+ed.addEventListener('change',e=>{
+ const c=e.target;if(c.type!=='checkbox')return;
+ c.toggleAttribute('checked',c.checked);c.parentElement.classList.toggle('d',c.checked);save();
+});
+/* ---------- الصور (تصغير تلقائي ثم حفظ محلي) ---------- */
+$('#img').onclick=()=>$('#imgf').click();
+$('#imgf').onchange=async e=>{
+ for(const f of e.target.files){
+  const url=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f)});
+  const im=new Image();await new Promise(r=>{im.onload=r;im.src=url});
+  const k=Math.min(1,1280/Math.max(im.width,im.height));
+  const cv=document.createElement('canvas');cv.width=im.width*k;cv.height=im.height*k;
+  cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+  restore();document.execCommand('insertHTML',false,`<img src="${cv.toDataURL('image/jpeg',.82)}"><br>`);
+ }
+ e.target.value='';save();
+};
+ed.addEventListener('paste',e=>{
+ const f=[...e.clipboardData.files].find(x=>x.type.startsWith('image/'));
+ if(f){e.preventDefault();const dt=new DataTransfer();dt.items.add(f);$('#imgf').files=dt.files;$('#imgf').onchange({target:$('#imgf')})}
+});
+/* ---------- الأيقونات السريعة ---------- */
+const IC=[['✅','مهمة'],['⭐','مهم'],['🎯','هدف'],['📅','موعد'],['⏰','تذكير'],['📞','اتصال'],['✉️','بريد'],['🛒','تسوق'],['💰','مصروف'],['💳','فاتورة'],['💊','دواء'],['🏃','رياضة'],['💧','ماء'],['🍽️','وجبة'],['📚','دراسة'],['💼','عمل'],['👥','اجتماع'],['🚗','مشوار'],['✈️','سفر'],['🏠','منزل'],['🧹','تنظيف'],['🕌','صلاة'],['📖','قراءة'],['💡','فكرة'],['⚠️','تنبيه'],['❤️','شخصي'],['🎂','مناسبة'],['🔧','صيانة'],['📝','ملاحظة'],['🔒','سري'],['😊','مزاج جيد'],['😴','نوم']];
+IC.forEach(([i,t])=>{const b=document.createElement('button');b.textContent=i;b.title=t;b.onmousedown=e=>e.preventDefault();b.onclick=()=>ins(i+' ');$('#ic').append(b)});
+/* ---------- نسخ احتياطي ---------- */
+$('#exp').onclick=()=>{
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(notes)],{type:'application/json'}));
+ a.download='daftar-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+};
+$('#imp').onclick=()=>$('#impf').click();
+$('#impf').onchange=async e=>{
+ try{
+  const arr=JSON.parse(await e.target.files[0].text());
+  for(const n of arr){await tx('readwrite',s=>s.put(n));const i=notes.findIndex(x=>x.id===n.id);i<0?notes.push(n):notes[i]=n}
+  render();alert('تمت الاستعادة بنجاح ✓');
+ }catch(err){alert('الملف غير صالح')}
+ e.target.value='';
+};
+/* ---------- المظهر ---------- */
+function theme(t){document.documentElement.dataset.t=t;$('#theme').textContent=t==='dark'?'☀️':'🌙';pref('t',t)}
+$('#theme').onclick=()=>theme(document.documentElement.dataset.t==='dark'?'light':'dark');
+theme(pref('t')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+$('#menu').onclick=()=>$('#side').classList.toggle('open');
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();save(true)}});
+/* ---------- التثبيت والعمل دون اتصال ---------- */
+let dp=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#inst').hidden=false});
+$('#inst').onclick=async()=>{if(!dp)return;dp.prompt();await dp.userChoice;dp=null;$('#inst').hidden=true};
+addEventListener('appinstalled',()=>{$('#inst').hidden=true});
+if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+/* ---------- بدء التشغيل ---------- */
+(async()=>{
+ try{notes=await tx('readonly',s=>s.getAll())||[]}catch(e){notes=[]}
+ if(!notes.length)await create();
+ else{notes.sort((a,b)=>b.updated-a.updated);open(notes[0].id)}
+ render();
+})();
+</script>
+</body>
+</html>
